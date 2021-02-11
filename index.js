@@ -36,42 +36,45 @@ const validateEmail = (input) => {
     }
 };
 
+// Array of base questions to ask all types of employees
+const questions = [
+    {
+        type: "input",
+        name: "name",
+        message: `Enter the employee's name:`,
+        validate: confirmResponse
+    },
+    // Enter the manager's ID.
+    {
+        type: "input",
+        name: "employeeId",
+        message: `Enter the employee's Id:`,
+        validate: confirmResponse
+    },
+    // Enter the manager's email.
+    {
+        type: "input",
+        name: "email",
+        message: `Enter the employee's email:`,
+        validate: validateEmail
+    },
+];
+
 // FUNCTIONS ==================================
 const getManager = () => {
+    let managerQuestions = questions.concat(
+                {
+                    type: "input",
+                    name: "officeNumber",
+                    message: "Enter the manager's office number:"
+                });
+
     // Get the manager's information.
     inquirer
-        .prompt([
-            // Enter the manager's name.
-            {
-                type: "input",
-                name: "name",
-                message: `Enter the manager's name:`,
-                validate: confirmResponse
-            },
-            // Enter the manager's ID.
-            {
-                type: "input",
-                name: "employeeId",
-                message: `Enter the manager's Id:`,
-                validate: confirmResponse
-            },
-            // Enter the manager's email.
-            {
-                type: "input",
-                name: "email",
-                message: `Enter the manager's email:`,
-                validate: validateEmail
-            },
-            // Enter the manager office number.
-            {
-                type: "input",
-                name: "officeNumber",
-                message: "Enter the manager's office number:"
-            }
-        ])
+        .prompt(managerQuestions)
         .then((response) => {
             // Using the responses to the prompts, create a Manager object and store it in the Team Members array.
-            addEmployeeToTeam("manager", response.name, response.employeeId, response.email, response.officeNumber);
+            addEmployeeToTeam("manager", response);
 
             // Ask for the next employee type they want to enter.
             selectNextEmployee();
@@ -82,18 +85,21 @@ const getManager = () => {
     })
 };
 
-function addEmployeeToTeam(role, name, id, email, answer) {
+function addEmployeeToTeam(role, response) {
     let employee;
+    let name = response.name;
+    let id = response.employeeId;
+    let email = response.email;
 
     switch (role) {
         case "manager":
-            employee = new Manager(name, id, email, answer);
+            employee = new Manager(name, id, email, response.officeNumber);
             break;
         case "engineer": 
-            employee = new Engineer(name, id, email, answer);
+            employee = new Engineer(name, id, email, response.github);
             break;
         case "intern":
-            intern = new Intern(name, id, employee, answer);
+            intern = new Intern(name, id, employee, response.school);
             break;
     };
 
@@ -120,7 +126,7 @@ const selectNextEmployee = () => {
                     break;
                 case "Intern": getIntern();
                     break;
-                default: 
+                case "Finish building my team": renderHTML();;
                     break;
             }
         })
@@ -131,39 +137,21 @@ const selectNextEmployee = () => {
 };
 
 const getEngineer = () => {
+    let engineerQuestions = questions.concat(
+        {
+            type: "input",
+            name: "github",
+            message: "Enter the engineer's GitHub username:"
+        });
+
     // Prompt the user to get answers to questions.
     inquirer
-        .prompt([
-            // Enter the engineer's name.
-            {
-                type: "input",
-                name: "name",
-                message: `Enter the engineer's name:`,
-                validate: confirmResponse
-            },
-            // Enter the engineer's ID.
-            {
-                type: "input",
-                name: "employeeId",
-                message: `Enter the engineer's Id:`,
-                validate: confirmResponse
-            },
-            // Enter the engineer's email.
-            {
-                type: "input",
-                name: "email",
-                message: `Enter the engineer's email:`,
-                validate: validateEmail
-            },
-            // Enter the engineer's GitHub username.
-            {
-                type: "input",
-                name: "github",
-                message: "Enter the engineer's GitHub username:"
-            }
-        ])
+        .prompt(engineerQuestions)
         .then((response) => {
-            addEmployeeToTeam("engineer", response.name, response.employeeId, response.email, response.github);
+            addEmployeeToTeam("engineer", response);
+
+            // Ask for the next employee type they want to enter.
+            selectNextEmployee();
         })
     // If there is an error, write an error to the console.
     .catch(err => {
@@ -172,46 +160,30 @@ const getEngineer = () => {
 };
 
 const getIntern = () => {
+    let internQuestions = questions.concat(
+        {
+            type: "input",
+            name: "school",
+            message: "Enter the intern's school:"
+        });
 
     // Prompt the user for the intern's information.
     inquirer
-        .prompt([
-            // Enter the intern's name.
-            {
-                type: "input",
-                name: "name",
-                message: `Enter the intern's name:`,
-                validate: confirmResponse
-            },
-            // Enter the intern's ID.
-            {
-                type: "input",
-                name: "employeeId",
-                message: `Enter the intern's Id:`,
-                validate: confirmResponse
-            },
-            // Enter the intern's email.
-            {
-                type: "input",
-                name: "email",
-                message: `Enter the intern's email:`,
-                validate: validateEmail
-            },
-            // Enter the intern's school.
-            {
-                type: "input",
-                name: "school",
-                message: "Enter the intern's school:"
-            }
-        ])
-        // Write a ReadMe file using the amswers to the prompts.
+        .prompt(internQuestions)
         .then((response) => {
-            addEmployeeToTeam("intern", response.name, response.employeeId, response.email, response.school);
+            addEmployeeToTeam("intern", response);
+
+            // Ask for the next employee type they want to enter.
+            selectNextEmployee();
         })
     // If there is an error, write an error to the console.
     .catch(err => {
         console.error(err);
     })
+};
+
+const renderHTML = () => {
+
 };
 
 // writeUserInfo - takes user responses and writes a README.md file
