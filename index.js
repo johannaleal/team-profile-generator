@@ -4,6 +4,7 @@
 const fs = require('fs');
 const inquirer = require('inquirer');
 const validator = require('email-validator');
+
 // Employee classes
 const Manager = require("./lib/Manager");
 const Engineer = require("./lib/Engineer");
@@ -22,7 +23,7 @@ const confirmResponse = (input) => {
         return "This field is required!"
     }
     return true;
-}
+};
 
 // Validate the email format.
 // Return an error message if not correct.
@@ -33,100 +34,53 @@ const validateEmail = (input) => {
     else {
         return "This email is not valid!";
     }
-}
+};
 
 // FUNCTIONS ==================================
-const buildTeam = () => {
-
-    // First prompt for the manager's information.
-    getEmployee("manager");
-
-    // Prompt for the next employee
-    // until they don't want to enter anymore employees
-
-    // Using the team array of employee objects
-    // Render the HTML file and display it
-    
-}
-
-const getEmployee = (employeeRole) => {
-    let name;
-    let employeeId;
-    let email;
-
-    // Prompt the user to get answers to questions.
+const getManager = () => {
+    // Get the manager's information.
     inquirer
         .prompt([
-            // Enter the employee's name.
+            // Enter the manager's name.
             {
                 type: "input",
                 name: "name",
-                message: `Enter the ${employeeRole}'s name:`,
+                message: `Enter the manager's name:`,
                 validate: confirmResponse
             },
-            // Enter the employee's ID.
+            // Enter the manager's ID.
             {
                 type: "input",
                 name: "employeeId",
-                message: `Enter the ${employeeRole}'s Id:`,
+                message: `Enter the manager's Id:`,
                 validate: confirmResponse
             },
-            // Enter the employee's email.
+            // Enter the manager's email.
             {
                 type: "input",
                 name: "email",
-                message: `Enter the ${employeeRole}'s email:`,
+                message: `Enter the manager's email:`,
                 validate: validateEmail
+            },
+            // Enter the manager office number.
+            {
+                type: "input",
+                name: "officeNumber",
+                message: "Enter the manager's office number:"
             }
         ])
-        .then(answers => {
-            name = answers.name;
-            employeeId = answers.employeeId;
-            email = answers.email;
-        
-            switch (employeeRole) 
-            {
-                case "manager": 
-                    inquirer
-                        .prompt([
-                            {
-                                type: "input",
-                                name: "officeNumber",
-                                message: "Enter the manager's office number:"
-                            }
-                        ])
-                    break;
-                case "engineer":
-                    inquirer
-                        .prompt([
-                            {
-                                type: "input",
-                                name: "github",
-                                message: "Enter the engineer's GitHub username:"
-                            }
-                        ]);
-                    break;
-                case "intern":
-                    inquirer
-                        .prompt([
-                            {
-                                type: "input",
-                                name: "school",
-                                message: "Enter the intern's school:"
-                            }
-                        ]);
-                    break;
-            }
-        })
-        // Write a ReadMe file using the amswers to the prompts.
-        .then((answer) => {
-            addEmployeeToTeam(employeeRole, name, employeeId, email, answer);
+        .then((response) => {
+            // Using the responses to the prompts, create a Manager object and store it in the Team Members array.
+            addEmployeeToTeam("manager", response.name, response.employeeId, response.email, response.officeNumber);
+
+            // Ask for the next employee type they want to enter.
+            selectNextEmployee();
         })
     // If there is an error, write an error to the console.
     .catch(err => {
         console.error(err);
     })
-}
+};
 
 function addEmployeeToTeam(role, name, id, email, answer) {
     let employee;
@@ -144,7 +98,121 @@ function addEmployeeToTeam(role, name, id, email, answer) {
     };
 
     teamMembers.push(employee);
-}
+    console.log(teamMembers);
+};
+
+const selectNextEmployee = () => {
+  
+    // Prompt the user to get answers to questions.
+    inquirer
+        .prompt([
+            // Select the next employee role to enter or exit out.
+            {
+                type: "list",
+                name: "employeeType",
+                message: "Which employee would you like to add?",
+                choices: ["Engineer","Intern","Finish building my team"]
+            },
+        ])
+        .then((response) => {
+            switch (response.employeeType) {
+                case "Engineer": getEngineer();
+                    break;
+                case "Intern": getIntern();
+                    break;
+                default: 
+                    break;
+            }
+        })
+        // If there is an error, write an error to the console.
+        .catch(err => {
+            console.error(err);
+        })
+};
+
+const getEngineer = () => {
+    // Prompt the user to get answers to questions.
+    inquirer
+        .prompt([
+            // Enter the engineer's name.
+            {
+                type: "input",
+                name: "name",
+                message: `Enter the engineer's name:`,
+                validate: confirmResponse
+            },
+            // Enter the engineer's ID.
+            {
+                type: "input",
+                name: "employeeId",
+                message: `Enter the engineer's Id:`,
+                validate: confirmResponse
+            },
+            // Enter the engineer's email.
+            {
+                type: "input",
+                name: "email",
+                message: `Enter the engineer's email:`,
+                validate: validateEmail
+            },
+            // Enter the engineer's GitHub username.
+            {
+                type: "input",
+                name: "github",
+                message: "Enter the engineer's GitHub username:"
+            }
+        ])
+        .then((response) => {
+            addEmployeeToTeam("engineer", response.name, response.employeeId, response.email, response.github);
+        })
+    // If there is an error, write an error to the console.
+    .catch(err => {
+        console.error(err);
+    })
+};
+
+const getIntern = () => {
+
+    // Prompt the user for the intern's information.
+    inquirer
+        .prompt([
+            // Enter the intern's name.
+            {
+                type: "input",
+                name: "name",
+                message: `Enter the intern's name:`,
+                validate: confirmResponse
+            },
+            // Enter the intern's ID.
+            {
+                type: "input",
+                name: "employeeId",
+                message: `Enter the intern's Id:`,
+                validate: confirmResponse
+            },
+            // Enter the intern's email.
+            {
+                type: "input",
+                name: "email",
+                message: `Enter the intern's email:`,
+                validate: validateEmail
+            },
+            // Enter the intern's school.
+            {
+                type: "input",
+                name: "school",
+                message: "Enter the intern's school:"
+            }
+        ])
+        // Write a ReadMe file using the amswers to the prompts.
+        .then((response) => {
+            addEmployeeToTeam("intern", response.name, response.employeeId, response.email, response.school);
+        })
+    // If there is an error, write an error to the console.
+    .catch(err => {
+        console.error(err);
+    })
+};
 
 // writeUserInfo - takes user responses and writes a README.md file
 // const writeUserInfo = (userResponses) => {
@@ -227,6 +295,6 @@ function addEmployeeToTeam(role, name, id, email, answer) {
 // USER INTERACTIONS ==========================
 
 
-buildTeam();
+getManager();
 
   
