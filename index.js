@@ -4,6 +4,7 @@
 const fs = require('fs');
 const inquirer = require('inquirer');
 const validator = require('email-validator');
+const renderHTML = require("./src/template");
 
 // Employee classes
 const Manager = require("./lib/Manager");
@@ -37,21 +38,22 @@ const validateEmail = (input) => {
 };
 
 // Array of base questions to ask all types of employees
-const questions = [
+let prompts = [
+    // Enter the employee's name.
     {
         type: "input",
         name: "name",
         message: `Enter the employee's name:`,
         validate: confirmResponse
     },
-    // Enter the manager's ID.
+    // Enter the employee's ID.
     {
         type: "input",
         name: "employeeId",
         message: `Enter the employee's Id:`,
         validate: confirmResponse
     },
-    // Enter the manager's email.
+    // Enter the employeee's email.
     {
         type: "input",
         name: "email",
@@ -63,7 +65,11 @@ const questions = [
 // FUNCTIONS ==================================
 
 const getManager = () => {
-    let managerQuestions = questions.concat(
+    prompts[0].message = "Enter the manager's name:";
+    prompts[1].message = "Enter the manager's Id:";
+    prompts[2].message = `Enter the manager's email:`
+
+    let managerPrompts = prompts.concat(
                 {
                     type: "input",
                     name: "officeNumber",
@@ -72,7 +78,7 @@ const getManager = () => {
 
     // Get the manager's information.
     inquirer
-        .prompt(managerQuestions)
+        .prompt(managerPrompts)
         .then((response) => {
             // Using the responses to the prompts, create a Manager object and store it in the Team Members array.
             addEmployeeToTeam("manager", response);
@@ -123,11 +129,16 @@ const selectNextEmployee = () => {
         ])
         .then((response) => {
             switch (response.employeeType) {
-                case "Engineer": getEngineer();
+                case "Engineer": 
+                    getEngineer();
                     break;
-                case "Intern": getIntern();
+                case "Intern": 
+                    getIntern();
                     break;
-                case "Finish building my team": renderHTML();;
+                case "Finish building my team": 
+                    fs.writeFile("../dist/index.html", renderHTML(teamMembers), 
+                    (err) => err ? console.error(err) : console.log("File was successly generated!"));
+
                     break;
             }
         })
@@ -138,7 +149,11 @@ const selectNextEmployee = () => {
 };
 
 const getEngineer = () => {
-    let engineerQuestions = questions.concat(
+    prompts[0].message = "Enter the engineer's name:";
+    prompts[1].message = "Enter the engineer's Id:";
+    prompts[2].message = `Enter the engineer's email:`
+
+    let engineerPrompts = prompts.concat(
         {
             type: "input",
             name: "github",
@@ -147,7 +162,7 @@ const getEngineer = () => {
 
     // Prompt the user to get answers to questions.
     inquirer
-        .prompt(engineerQuestions)
+        .prompt(engineerPrompts)
         .then((response) => {
             addEmployeeToTeam("engineer", response);
 
@@ -161,7 +176,11 @@ const getEngineer = () => {
 };
 
 const getIntern = () => {
-    let internQuestions = questions.concat(
+    prompts[0].message = "Enter the intern's name:";
+    prompts[1].message = "Enter the intern's Id:";
+    prompts[2].message = `Enter the intern's email:`
+
+    let internPrompts = prompts.concat(
         {
             type: "input",
             name: "school",
@@ -170,7 +189,7 @@ const getIntern = () => {
 
     // Prompt the user for the intern's information.
     inquirer
-        .prompt(internQuestions)
+        .prompt(internPrompts)
         .then((response) => {
             addEmployeeToTeam("intern", response);
 
@@ -181,10 +200,6 @@ const getIntern = () => {
     .catch(err => {
         console.error(err);
     })
-};
-
-const renderHTML = () => {
-
 };
 
 getManager();

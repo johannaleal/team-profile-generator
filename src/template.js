@@ -1,75 +1,89 @@
-
 const renderHTML = (teamMembers) => {
   // Build a string with user responses.
-  const content = formatReadMe(userResponses);
+    let html = `
+    <!DOCTYPE html>
+    <html lang="en">
+        <head>
+            <meta charset="UTF-8">
+            <meta http-equiv="X-UA-Compatible" content="IE=edge">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <title>Team Profile</title>
 
-  // Write the generated content to a file. If there is an error writing to the file, console.log the error message received.
-  // Else, console.log an success message.
-  // NOTE: FOR TESTING PURPOSES I HAVE NAMED THE OUTPUT FILE README_TEST.MD SO AS NOT TO OVERWRITE MY ACTUAL README.MD FILE.
-  fs.writeFile("readme_test.md", content, (err) => err ? console.error(err) : console.log("File was successly generated!"));
-}
+            <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/css/bootstrap.min.css" integrity="sha384-B0vP5xmATw1+K9KRQjQERJvTumQW0nPEzvF6L/Z6nronJ3oUOFUFpCjEUQouq2+l" crossorigin="anonymous">
 
-const formatReadMe = (userResponses) => {
-    let link = "";
+            <link
+            rel="stylesheet"
+            href="https://use.fontawesome.com/releases/v5.8.1/css/all.css"
+            integrity="sha384-50oBUHEmvpQ+1lW4y57PTFmhCaXp0ML5d60M1M7uH2+nqUivzIebhndOJK28anvf"
+            crossorigin="anonymous"/>
 
-    // Find the selected badge link.
-    switch (userResponses.license)  {
-        case "Apache License 2.0":
-            link = "[![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)";
-            break;
-        case "GNU General Public License v3.0":
-            link = "[![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)";
-            break;
-        case "MIT License":
-            link = "[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)";
-            break;
-        case "BSD-2-Clause Simplified License":
-            link = "[![License](https://img.shields.io/badge/License-BSD%202--Clause-orange.svg)](https://opensource.org/licenses/BSD-2-Clause)";
-            break;
-        case "Mozilla Public License 2.0":
-            link = "[![License: MPL 2.0](https://img.shields.io/badge/License-MPL%202.0-brightgreen.svg)](https://opensource.org/licenses/MPL-2.0)";
-            break;
-     };
+            <style>
+                * {
+                    box-sizing: border-box;
+                    padding: 0;
+                    margin: 0;
+                }
 
-    // Return the content string which contains the content of the ReadMe file.
-    let content = `# ${userResponses.title}
+                .jumbotron {
+                    padding: 32px 16px;
+                    background-color:steelblue;
+                }
 
-${link}
+                h1 {
+                    font-family:Arial, Helvetica, sans-serif;
+                    font-weight: bolder;
+                    color: white;
+                }
+            </style>
+        </head>
 
-## Description
+        <body>
+        <div class="jumbotron">
+            <h1 class="display-4" style="text-align: center;">Johanna's Team</h1>
+        </div>
 
-${userResponses.description}
-
-## Table of Contents
-* [Installation](#installation)
-* [Usage](#usage)
-* [License](#license)
-* [Contributing](#contributing)
-* [Tests](#tests)
-* [Questions](#questions)
-
-## Installation
-${userResponses.installation};
-
-## Usage
-${userResponses.usage}
-
-## License
-This application is covered under license: ${userResponses.license}
-
-## Contributing
-${userResponses.contribution}
-
-## Tests
-${userResponses.testInstructions}
-
-## Questions
-### Contact Information:
-
-GitHub Profile: [@${userResponses.gitHubUserName}](http://github.com/${userResponses.gitHubUserName})
-
-Email: <${userResponses.email}>
+        <div class="row" style="align-items: center;">
     `;
 
-    return content;
-}
+    for (let i = 1; i < teamMembers.length; i++) {
+        let employeeField = "";
+
+        html = html + 
+        `<div class="col-md-3">
+            <div class="card" style="width: 18rem;">
+                <div class="card-body" style="background-color: lightseagreen;">
+                  <h5 class="card-title">${teamMembers[i].getName()}</h5>
+                  <p class="card-text">`;
+
+                  switch (teamMembers[i].getRole()) {
+                    case "Manager": 
+                        html = html + `<i class="fas fa-mug-hot"></i>Manager</p>/div>`;
+                        employeeField = "Office number:" + teamMembers[i].getOfficeNumber();
+                        break;
+                    case "Engineer":
+                        html = html + `<p class="card-text"><i class="fas fa-glasses"></i>Engineer</p>`;
+                        employeeField = "GitHub: <a href='https://github.com/'" + teamMembers[i].getGitHub() +  "target='_blank'>" + teamMembers[i].getGitHub() + "</a>";
+                        break;
+                    case "Intern":
+                        html = html + `<p class="card-text"><i class="fas fa-user-graduate"></i>Intern</p>`;
+                        employeeField = "School: " + teamEmployees[i].getSchool();
+                        break;
+                  };
+
+                  html = html + 
+                    `<div class="card-body" style="background-color:lightgray">
+                    <ul class="list-group list-group-flush">
+                    <li class="list-group-item">ID: ${teamMembers[i].getId()}.id</li>
+                    <li class="list-group-item">Email: <a href="${teamMembers[i].getEmail()}" class="card-link">${teamMembers[i].getEmail()}</a></li>
+                    <li class="list-group-item">${employeeField}</li>
+                    </ul>
+                </div>
+            </div>
+        </div>`;
+    };
+
+    html = html + "</div></body></html>";
+console.log(html);
+};
+
+module.exports = renderHTML;
